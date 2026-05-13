@@ -139,28 +139,6 @@ flowchart TD
 | **VectorAssembler** | Συνένωση στηλών | Όλα τα features σε ένα vector |
 | **Scaler** | Κανονικοποίηση | StandardScaler (κανονική κατανομή) ή MinMaxScaler (εύρος) |
 | **Classifier** | Τελικό μοντέλο | Logistic Regression, Decision Tree, Random Forest, Linear SVC |
-
----
-
-## 📅 Φάσεις Υλοποίησης (Σειριακή Εκτέλεση)
-
-```mermaid
-gantt
-    title Κατανομή Φάσεων Εργασίας (Σειριακή Εκτέλεση)
-    dateFormat  YYYY-MM-DD
-    axisFormat  %d/%m
-
-    section Φάσεις
-    A: Preprocessing (Data Engineer)     :a1, 2026-05-20, 5d
-    B: EDA (Data Analyst)                :a2, after a1, 4d
-    Γ: Classification (ML Engineer)      :a3, after a2, 5d
-    Δ: Spark Pipeline (Data Engineer)    :a4, after a3, 4d
-    Ε: Evaluation (ML Engineer)          :a5, after a4, 3d
-    ΣΤ: Report & Παρουσίαση (Όλοι)      :a6, after a5, 6d
-```
-
-> 📌 Οι ημερομηνίες είναι ενδεικτικές. Προσαρμόστε ανάλογα με το πρόγραμμά σας.
-
 ---
 
 ## 📋 Αναλυτικές Φάσεις
