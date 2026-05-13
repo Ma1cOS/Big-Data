@@ -77,14 +77,22 @@ flowchart LR
     F --> G[📝 Report]
     G --> H[📽️ Presentation]
 
-    style A fill:#e1f5fe
-    style B fill:#fff3e0
-    style C fill:#f3e5f5
-    style D fill:#e8f5e9
-    style E fill:#fff9c4
-    style F fill:#fce4ec
-    style G fill:#e0f2f1
-    style H fill:#fbe9e7
+    classDef blue fill:#1565c0,color:#fff,stroke:#0d47a1
+    classDef orange fill:#e65100,color:#fff,stroke:#bf360c
+    classDef purple fill:#7b1fa2,color:#fff,stroke:#4a148c
+    classDef green fill:#2e7d32,color:#fff,stroke:#1b5e20
+    classDef amber fill:#f9a825,color:#000,stroke:#f57f17
+    classDef red fill:#c62828,color:#fff,stroke:#b71c1c
+    classDef teal fill:#00695c,color:#fff,stroke:#004d40
+    classDef grey fill:#37474f,color:#fff,stroke:#263238
+    class A blue
+    class B orange
+    class C purple
+    class D green
+    class E amber
+    class F red
+    class G teal
+    class H grey
 ```
 
 ---
@@ -102,15 +110,23 @@ flowchart TD
     SCL --> CLS[Classifier\nLR, DT, RF, SVM]
     CLS --> EVAL[Evaluation]
 
-    style RAW fill:#e1f5fe
-    style SPLIT fill:#fff3e0
-    style IMP fill:#fce4ec
-    style IDX fill:#f3e5f5
-    style ENC fill:#f3e5f5
-    style ASM fill:#e8f5e9
-    style SCL fill:#fff9c4
-    style CLS fill:#e0f2f1
-    style EVAL fill:#fbe9e7
+    classDef blue fill:#1565c0,color:#fff,stroke:#0d47a1
+    classDef orange fill:#e65100,color:#fff,stroke:#bf360c
+    classDef red fill:#c62828,color:#fff,stroke:#b71c1c
+    classDef purple fill:#7b1fa2,color:#fff,stroke:#4a148c
+    classDef green fill:#2e7d32,color:#fff,stroke:#1b5e20
+    classDef amber fill:#f9a825,color:#000,stroke:#f57f17
+    classDef teal fill:#00695c,color:#fff,stroke:#004d40
+    classDef grey fill:#37474f,color:#fff,stroke:#263238
+    class RAW blue
+    class SPLIT orange
+    class IMP red
+    class IDX purple
+    class ENC purple
+    class ASM green
+    class SCL amber
+    class CLS teal
+    class EVAL grey
 ```
 
 ### Επεξήγηση σταδίων
@@ -130,21 +146,17 @@ flowchart TD
 
 ```mermaid
 gantt
-    title Κατανομή Φάσεων Εργασίας
+    title Κατανομή Φάσεων Εργασίας (Σειριακή Εκτέλεση)
     dateFormat  YYYY-MM-DD
     axisFormat  %d/%m
 
-    section Data Engineer
-    Φάση Α: Preprocessing       :a1, 2026-05-20, 5d
-    Φάση Δ: Spark Pipeline      :a4, after a3, 4d
-
-    section Data Analyst
-    Φάση Β: EDA                 :a2, after a1, 4d
-    Φάση ΣΤ: Report & Παρουσίαση :a6, after a5, 6d
-
-    section ML Engineer
-    Φάση Γ: Classification      :a3, after a2, 5d
-    Φάση Ε: Evaluation          :a5, after a4, 3d
+    section Φάσεις
+    A: Preprocessing (Data Engineer)     :a1, 2026-05-20, 5d
+    B: EDA (Data Analyst)                :a2, after a1, 4d
+    Γ: Classification (ML Engineer)      :a3, after a2, 5d
+    Δ: Spark Pipeline (Data Engineer)    :a4, after a3, 4d
+    Ε: Evaluation (ML Engineer)          :a5, after a4, 3d
+    ΣΤ: Report & Παρουσίαση (Όλοι)      :a6, after a5, 6d
 ```
 
 > 📌 Οι ημερομηνίες είναι ενδεικτικές. Προσαρμόστε ανάλογα με το πρόγραμμά σας.
@@ -272,6 +284,19 @@ flowchart LR
     DF --> PIPE[ML Pipeline\nImputer → Indexer → Encoder → Assembler → Scaler]
     PIPE --> TRAIN[Train Model\nRandom Forest / Logistic Regression]
     TRAIN --> EVAL[📈 Evaluation]
+
+    classDef blue fill:#1565c0,color:#fff,stroke:#0d47a1
+    classDef orange fill:#e65100,color:#fff,stroke:#bf360c
+    classDef green fill:#2e7d32,color:#fff,stroke:#1b5e20
+    classDef amber fill:#f9a825,color:#000,stroke:#f57f17
+    classDef red fill:#c62828,color:#fff,stroke:#b71c1c
+    classDef grey fill:#37474f,color:#fff,stroke:#263238
+    class CSV blue
+    class SPARK orange
+    class DF amber
+    class PIPE green
+    class TRAIN red
+    class EVAL grey
 ```
 
 **Υλοποίηση Spark ML Pipeline:**
@@ -341,6 +366,16 @@ flowchart LR
     CM --> REPORT[Evaluation Report]
     ROC --> REPORT
     BAR --> REPORT
+
+    classDef blue fill:#1565c0,color:#fff,stroke:#0d47a1
+    classDef purple fill:#7b1fa2,color:#fff,stroke:#4a148c
+    classDef green fill:#2e7d32,color:#fff,stroke:#1b5e20
+    classDef grey fill:#37474f,color:#fff,stroke:#263238
+    class PRED blue
+    class CM purple
+    class ROC purple
+    class BAR purple
+    class REPORT grey
 ```
 
 **Βήματα:**
