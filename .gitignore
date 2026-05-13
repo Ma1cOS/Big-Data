@@ -1,0 +1,23 @@
+# Word-generated documentation files
+Doc.htm
+Doc_files/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Data (keep raw CSV tracked for reproducibility)
+# data/cleaned_data.csv
