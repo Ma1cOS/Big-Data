@@ -9,11 +9,9 @@
 
 | Ρόλος | Μέλος | Αρμοδιότητες |
 |-------|-------|---------------|
-| **Data Engineer** | `[Ονοματεπώνυμο]` | Preprocessing, pipelines, Spark, data cleaning |
-| **Data Analyst** | `[Ονοματεπώνυμο]` | EDA, visualizations, insights, στατιστικά |
-| **ML Engineer** | `[Ονοματεπώνυμο]` | Μοντέλα classification, evaluation, σύγκριση |
-
-> ⚠️ **Σημαντικό:** Οι φάσεις εκτελούνται **σειριακά**, όχι παράλληλα. Κάθε φάση πρέπει να ολοκληρώνεται πριν ξεκινήσει η επόμενη.
+| **Data Engineer** | `jimpar1` | Preprocessing, pipelines, Spark, data cleaning |
+| **Data Analyst** | `Ma1cOS` | EDA, visualizations, insights, στατιστικά |
+| **ML Engineer** | `Ttrahilis` | Μοντέλα classification, evaluation, σύγκριση |
 
 ---
 
