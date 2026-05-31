@@ -9,8 +9,8 @@
 
 | Ρόλος | Μέλος | Αρμοδιότητες |
 |-------|-------|---------------|
-| **Data Engineer** | `jimpar1` | Preprocessing, pipelines, Spark, data cleaning |
-| **Data Analyst** | `Ma1cOS` | EDA, visualizations, insights, στατιστικά |
+| **Data Engineer** | `Ma1cOS` | Preprocessing, pipelines, Spark, data cleaning |
+| **Data Analyst** | `jimpar1` | EDA, visualizations, insights, στατιστικά |
 | **ML Engineer** | `Ttrahilis` | Μοντέλα classification, evaluation, σύγκριση |
 
 ---
