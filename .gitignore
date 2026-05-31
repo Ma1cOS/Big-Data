@@ -21,3 +21,5 @@ Thumbs.db
 
 # Data (keep raw CSV tracked for reproducibility)
 # data/cleaned_data.csv
+data/
+Big-Data.code-workspace

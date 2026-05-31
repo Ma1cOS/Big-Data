@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Πρόβλεψη Εγκεφαλικού Επεισοδίου</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Πρόβλεψη Εγκεφαλικού Επεισοδίου</h1>
+</header>
+<hr />
+<p><img src="diagrams/logo.jpg" width="100" /></p>
+<h1 id="παρουσίαση-εργασίας-εξαμήνου">Παρουσίαση Εργασίας Εξαμήνου</h1>
+<h2 id="πρόβλεψη-εγκεφαλικού-επεισοδίου">Πρόβλεψη Εγκεφαλικού
+Επεισοδίου</h2>
+<div class="columns3" style="text-align:center; margin-top:36px;">
+<div>
+Δημήτριος Παρασκευόπουλος<br>21390314
+</div>
+<div>
+Σωτήρης Μάκο<br>20290136
+</div>
+<div>
+Θωμάς Τραχίλης<br>22390225
+</div>
+</div>
+<hr />
+<h1 id="big-data-data-mining-stroke-prediction">Big Data &amp; Data
+Mining, Stroke Prediction</h1>
+<ul>
+<li><strong>Δεδομένα:</strong> 5.110 ιατρικές εγγραφές ασθενών</li>
+<li><strong>Στόχος:</strong> Δυαδική ταξινόμηση, πρόβλεψη πιθανότητας
+εγκεφαλικού</li>
+<li><strong>Πρόκληση:</strong> Μόλις 5% των ασθενών έχει υποστεί
+stroke</li>
+<li><strong>Στοίβα:</strong> PySpark ML, Python, Jupyter</li>
+<li><strong>Dataset:</strong> <a
+href="https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset">Kaggle
+— Stroke Prediction Dataset</a></li>
+<li><strong>Repo:</strong> <a
+href="https://github.com/Ma1cOS/Big-Data">github.com/Ma1cOS/Big-Data</a></li>
+</ul>
+<hr />
+<div class="columns">
+<h1 id="το-πρόβλημα-το-dataset">Το Πρόβλημα &amp; Το Dataset</h1>
+<p><strong>Το πρόβλημα:</strong> - Εγκεφαλικό: 1η αιτία αναπηρίας, 2η
+αιτία θανάτου - <strong>1 στα 4</strong> άτομα θα υποστεί εγκεφαλικό
+(WHO) - Binary classification: <strong>stroke (1)</strong> ή <strong>όχι
+stroke (0)</strong></p>
+<p><strong>Προκλήσεις:</strong> - Μόλις <strong>5%</strong> των ασθενών
+με stroke - 201 BMI τιμές <code>"N/A"</code> (3.9%) - 5/10 μεταβλητές
+κατηγορικές , ordinal bias</p><div>
+<table>
+<thead>
+<tr class="header">
+<th>Μεταβλητή</th>
+<th>Τύπος</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>gender</code></td>
+<td>Κατηγορική</td>
+</tr>
+<tr class="even">
+<td><code>age</code></td>
+<td>Αριθμητική</td>
+</tr>
+<tr class="odd">
+<td><code>hypertension</code></td>
+<td>Δυαδική</td>
+</tr>
+<tr class="even">
+<td><code>heart_disease</code></td>
+<td>Δυαδική</td>
+</tr>
+<tr class="odd">
+<td><code>ever_married</code></td>
+<td>Κατηγορική</td>
+</tr>
+<tr class="even">
+<td><code>work_type</code></td>
+<td>Κατηγορική (5)</td>
+</tr>
+<tr class="odd">
+<td><code>Residence_type</code></td>
+<td>Κατηγορική</td>
+</tr>
+<tr class="even">
+<td><code>avg_glucose_level</code></td>
+<td>Αριθμητική</td>
+</tr>
+<tr class="odd">
+<td><code>bmi</code></td>
+<td>Αριθμητική</td>
+</tr>
+<tr class="even">
+<td><code>smoking_status</code></td>
+<td>Κατηγορική (4)</td>
+</tr>
+<tr class="odd">
+<td><code>stroke</code></td>
+<td><strong>Label</strong> (5%)</td>
+</tr>
+</tbody>
+</table>
+<p>5.110 εγγραφές, 10 προγνωστικές + 1 label</p>
+</div>
+</div>
+<hr />
+<h1 id="αρχιτεκτονική-bronze-silver-gold">Αρχιτεκτονική , Bronze →
+Silver → Gold</h1>
+<p><img src="diagrams/diagram_0.png" width="800" /></p>
+<table>
+<thead>
+<tr class="header">
+<th>Στάδιο</th>
+<th>Train</th>
+<th>Test</th>
+<th>Στήλες</th>
+<th>Τι συμβαίνει</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bronze</td>
+<td>5.110</td>
+<td>5.110</td>
+<td>11</td>
+<td>Καθαρισμός, split 80/20</td>
+</tr>
+<tr class="even">
+<td>Silver</td>
+<td>4.123</td>
+<td>987</td>
+<td>16</td>
+<td>Imputation, StringIndexer</td>
+</tr>
+<tr class="odd">
+<td>Gold</td>
+<td>7.832</td>
+<td>987</td>
+<td>2</td>
+<td>OneHot, Scaler, SMOTE</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 Το <strong>preprocessing</strong> είναι ο μοναδικός παραγωγός. Τα
+μοντέλα διαβάζουν μόνο Gold.</p>
+</blockquote>
+<hr />
+<h1 id="preprocessing-pipeline">Preprocessing Pipeline</h1>
+<div class="columns">
+<div>
+<p><strong>Bronze , Καθαρισμός &amp; Split:</strong> 1. Φόρτωση CSV,
+αφαίρεση <code>id</code> 2. <code>"N/A"</code> → null → Double (201 BMI
+κενά) 3. Train/Test split (seed=42, 80/20)</p>
+<p><strong>Imputation , Median (27.90):</strong> - Υπολογισμός από train
+μόνο - Εφαρμογή και στα δύο σύνολα - Αποφυγή data leakage , test
+ανέγγιχτο</p>
+</div><div>
+<p><strong>Silver , StringIndexer (5 κατηγορικές):</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Μεταβλητή</th>
+<th>Δείκτες</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>gender</code></td>
+<td>0–2</td>
+</tr>
+<tr class="even">
+<td><code>ever_married</code></td>
+<td>0–1</td>
+</tr>
+<tr class="odd">
+<td><code>work_type</code></td>
+<td>0–4</td>
+</tr>
+<tr class="even">
+<td><code>Residence_type</code></td>
+<td>0–1</td>
+</tr>
+<tr class="odd">
+<td><code>smoking_status</code></td>
+<td>0–3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SMOTE:</strong> 207 → 3.916 stroke δείγματα (50-50)</p>
+<p><strong>One-Hot:</strong> 16 δυαδικές στήλες → <strong>21
+διαστάσεις</strong> SparseVector</p>
+</div>
+</div>
+<hr />
+<h1 id="eda-train-test-split-κατανομή-κλάσεων">EDA, Train / Test Split
+&amp; Κατανομή Κλάσεων</h1>
+<p><img src="eda_plots/01_train_test_split.png" width="750" /></p>
+<ul>
+<li>80% train (4.123 δείγματα), 20% test (987 δείγματα)</li>
+<li>Έντονη ανισορροπία: 4.3% stroke στο test set</li>
+<li>Το test set διατηρεί το φυσικό imbalance για ρεαλιστική
+αξιολόγηση</li>
+</ul>
+<hr />
+<h1 id="eda-ιστογράμματα-age-glucose-bmi">EDA, Ιστογράμματα (age,
+glucose, bmi)</h1>
+<p><img src="eda_plots/02_histograms.png" width="700" /></p>
+<ul>
+<li>Ηλικία: κατανομή με μέσο τα 43 έτη, εύρος 0–82</li>
+<li>Γλυκόζη: δεξιά ασυμμετρία, μέσος ~106 mg/dL</li>
+<li>BMI: κατά προσέγγιση κανονική γύρω από τη διάμεσο 27.9</li>
+</ul>
+<hr />
+<h1 id="eda-box-plots-ανά-stroke">EDA, Box Plots ανά Stroke</h1>
+<p><img src="eda_plots/03_boxplots.png" width="700" /></p>
+<ul>
+<li>Ηλικία: διάμεσος stroke 68 vs μη-stroke 42 (~25 έτη διαφορά)</li>
+<li>Γλυκόζη: υψηλότερη διάμεσος στην ομάδα stroke (~117 vs ~105)</li>
+<li>BMI: μικρή διαφορά μεταξύ των δύο ομάδων</li>
+</ul>
+<hr />
+<h1 id="eda-density-ηλικίας-ανά-stroke">EDA, Density Ηλικίας ανά
+Stroke</h1>
+<p><img src="eda_plots/06_age_density.png" width="700" /></p>
+<ul>
+<li>Μη-stroke: κορύφωση γύρω στα 40 έτη</li>
+<li>Stroke: κορύφωση γύρω στα 75-80 έτη</li>
+<li>Η ηλικία είναι ο ισχυρότερος προγνωστικός παράγοντας (r=0.25)</li>
+</ul>
+<hr />
+<h1 id="eda-correlation-heatmap-pearson-r">EDA, Correlation Heatmap
+(Pearson r)</h1>
+<div class="columns">
+<div>
+<p><img src="eda_plots/07_correlation_heatmap.png" width="480" /></p>
+</div><div>
+<ul>
+<li>Ηλικία↔︎stroke: r=0.25 (ισχυρότερη συσχέτιση)</li>
+<li>Υπέρταση↔︎stroke: r=0.13</li>
+<li>Γλυκόζη↔︎stroke: r=0.06 (ασθενής)</li>
+<li>BMI↔︎stroke: σχεδόν μηδενική συσχέτιση</li>
+</ul>
+</div>
+</div>
+<hr />
+<h1 id="gold-layer-πριν-μετά-το-smote">Gold Layer, Πριν &amp; Μετά το
+SMOTE</h1>
+<p><img src="eda_plots/10_smote_comparison.png" width="750" /></p>
+<ul>
+<li>Πριν: 207 stroke δείγματα (5% της train)</li>
+<li>Μετά: 3.916 stroke + 3.916 non-stroke (50-50)</li>
+<li>Το SMOTE εφαρμόζεται μόνο στο train set, το test μένει
+ανέγγιχτο</li>
+</ul>
+<hr />
+<h1 id="μοντέλα-spark-ml-pipeline">Μοντέλα &amp; Spark ML Pipeline</h1>
+<div class="columns">
+<div>
+<table>
+<thead>
+<tr class="header">
+<th>Μοντέλο</th>
+<th>Πλεονέκτημα</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>MLP</strong></td>
+<td>Μη-γραμμικά όρια</td>
+</tr>
+<tr class="even">
+<td><strong>SVM (Linear SVC)</strong></td>
+<td>Αποδοτικό σε sparse</td>
+</tr>
+<tr class="odd">
+<td><strong>Random Forest</strong></td>
+<td>Feature importance</td>
+</tr>
+<tr class="even">
+<td><strong>Logistic Regression</strong></td>
+<td>Baseline, γρήγορο</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Διαδικασία:</strong> 5-fold CV, grid search, class
+weights</p>
+</div><div>
+<pre><code>Imputer → StringIndexer
+  → OneHotEncoder
+  → VectorAssembler
+  → StandardScaler
+  → Classifier</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th>Ταξινομητής</th>
+<th>Spark Class</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Random Forest</td>
+<td><code>RandomForestClassifier</code></td>
+</tr>
+<tr class="even">
+<td>Logistic Regression</td>
+<td><code>LogisticRegression</code> + <code>weightCol</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr />
+<h1 id="αξιολόγηση-5-μετρικές">Αξιολόγηση , 5 Μετρικές</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Μετρική</th>
+<th>Τι μετρά</th>
+<th>Προσοχή</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Accuracy</strong></td>
+<td>% σωστών προβλέψεων</td>
+<td>Παραπλανητική (95% dummy)</td>
+</tr>
+<tr class="even">
+<td><strong>Precision</strong></td>
+<td>Πόσα predicted είναι όντως stroke</td>
+<td>False alarms</td>
+</tr>
+<tr class="odd">
+<td><strong>Recall</strong></td>
+<td>Πόσα πραγματικά stroke βρήκαμε</td>
+<td><strong>Κλινικά κρίσιμο</strong></td>
+</tr>
+<tr class="even">
+<td><strong>F1-Score</strong></td>
+<td>Αρμονικός μέσος P &amp; R</td>
+<td>Ισορροπία</td>
+</tr>
+<tr class="odd">
+<td><strong>ROC-AUC</strong></td>
+<td>Διαχωριστική ικανότητα</td>
+<td>Ανεξάρτητο από threshold</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ Αξιολόγηση αποκλειστικά στο <strong>test set</strong> (987, φυσικό
+imbalance 4.3%).</p>
+</blockquote>
+<hr />
+<h1 id="τεχνικές-αποφάσεις-συμπεράσματα">Τεχνικές Αποφάσεις &amp;
+Συμπεράσματα</h1>
+<div class="columns">
+<div>
+<p><strong>Trade-offs:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Απόφαση</th>
+<th>Γιατί</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Median imputation</td>
+<td>Ανθεκτική σε outliers</td>
+</tr>
+<tr class="even">
+<td>SMOTE</td>
+<td>Διατηρεί όλα τα δεδομένα</td>
+</tr>
+<tr class="odd">
+<td>OneHotEncoder</td>
+<td>Αποφυγή ordinal bias</td>
+</tr>
+<tr class="even">
+<td>withMean=False</td>
+<td>Διατήρηση sparsity</td>
+</tr>
+<tr class="odd">
+<td>Parquet</td>
+<td>Συμπίεση, schema</td>
+</tr>
+</tbody>
+</table>
+</div><div>
+<p><strong>Συμπεράσματα:</strong></p>
+<ol type="1">
+<li><strong>Η ηλικία κυριαρχεί</strong> , ~25 έτη διαφορά, r=0.25</li>
+<li><strong>Class imbalance</strong> , SMOTE διορθώνει, test μένει
+ανέγγιχτο</li>
+<li><strong>Μη-γραμμικές σχέσεις</strong> , κάπνισμα, γλυκόζη,
+ηλικία×υπέρταση</li>
+<li><strong>Bronze → Silver → Gold</strong> , αναπαραγωγιμότητα, zero
+leakage</li>
+<li><strong>Test set ιερό</strong> , 987 δείγματα ανέγγιχτα</li>
+</ol>
+</div>
+</div>
+</body>
+</html>
