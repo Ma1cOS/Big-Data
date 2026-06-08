@@ -18,29 +18,43 @@
 
 **Αρχείο:** `notebooks/preprocessing.ipynb` (νέο section 10)
 
-**Πρόβλημα:** Μετά τη μετατροπή σε pandas (για SMOTE) και την επιστροφή σε Spark, τα ML metadata (StringIndexer labels, NominalAttribute) χάνονται. Τα Gold parquet περιέχουν μόνο `features` (SparseVector 21d) + `stroke`, χωρίς καμία πληροφορία για το τι αντιπροσωπεύει κάθε διάσταση.
+**Πρόβλημα:** Μετά τη μετατροπή σε pandas (για SMOTE) και την επιστροφή σε Spark, τα ML metadata (StringIndexer labels, NominalAttribute) χάνονται. Τα Gold parquet περιέχουν μόνο `features` (SparseVector) + `stroke`, χωρίς καμία πληροφορία για το τι αντιπροσωπεύει κάθε διάσταση.
 
-**Λύση:** Νέο κελί στο τέλος του preprocessing που αποθηκεύει `data/feature_metadata.json`:
+**Λύση:** Νέο κελί στο τέλος του preprocessing που αποθηκεύει `data/feature_metadata.json` με:
+- `feature_dim`: συνολικές διαστάσεις
+- `features`: λίστα `{index, column, category?, type}` ανά διάσταση
+- `cat_labels`: dict column → list of string labels
+- `numeric_cols`, `cat_cols`: λίστες ονομάτων στηλών
 
-```json
-{
-  "feature_dim": 21,
-  "features": [
-    {"index": 0,  "column": "gender",         "category": "Male",             "type": "onehot"},
-    {"index": 1,  "column": "gender",         "category": "Female",           "type": "onehot"},
-    {"index": 2,  "column": "ever_married",   "category": "No",               "type": "onehot"},
-    ...
-    {"index": 15, "column": "smoking_status", "category": "formerly smoked",  "type": "onehot"},
-    {"index": 16, "column": "age",            "type": "numeric"},
-    {"index": 17, "column": "hypertension",   "type": "numeric"},
-    {"index": 18, "column": "heart_disease",  "type": "numeric"},
-    {"index": 19, "column": "avg_glucose_level", "type": "numeric"},
-    {"index": 20, "column": "bmi",            "type": "numeric"}
-  ],
-  "cat_labels": { "gender": [...], "ever_married": [...], ... },
-  "numeric_cols": ["age", "hypertension", "heart_disease", "avg_glucose_level", "bmi"],
-  "cat_cols": ["gender", "ever_married", "work_type", "Residence_type", "smoking_status"]
-}
+---
+
+## 3. Metadata loading στα downstream notebooks
+
+Προστέθηκε βασική δομή (imports + φόρτωση δεδομένων + metadata) στα:
+- `notebooks/models.ipynb`
+- `notebooks/evaluation.ipynb`
+- `notebooks/spark_pipeline.ipynb`
+- `notebooks/advanced_technique.ipynb`
+
+Όλα έχουν έτοιμο το `idx_to_label` dict που αντιστοιχίζει feature index → readable όνομα (π.χ. `0 → "gender_Male"`, `16 → "age"`). Χρησιμοποίησέ το όταν τυπώνεις coefficients, feature importance, ή SHAP values.
+
+Επίσης στο `notebooks/eda.ipynb`:
+- Προστέθηκε `import json`
+- Νέο κελί που φορτώνει το metadata και χτίζει `feat_names`
+- Το heatmap του feature vector δείχνει πλέον readable ετικέτες αντί για αριθμούς διαστάσεων
+- Το ιστόγραμμα της 1ης διάστασης δείχνει το όνομα του feature στον τίτλο
+
+---
+
+## Πρέπει να ξανατρέξεις
+
+Το **preprocessing notebook** πρέπει να εκτελεστεί από την αρχή για να παραχθούν:
+- Τα νέα **parquet** (train_gold, test_gold) με SMOTENC αντί SMOTE
+- Το νέο **`data/feature_metadata.json`**
+
+```bash
+source venv/bin/activate
+jupyter notebook   # άνοιξε notebooks/preprocessing.ipynb → Run All
 ```
 
-Το αρχείο φορτώνεται από τα υπόλοιπα notebooks με `json.load()` για χρήση σε feature importance, coefficients και explainability.
+Μετά μπορείς να τρέξεις και το EDA που πλέον φορτώνει το metadata και δείχνει readable feature names.
