@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Πρόβλεψη Εγκεφαλικού Επεισοδίου · Big Data &amp; Data Mining</title>
+<!-- Fonts: Geist + Geist Mono (Fontshare by Vercel) -->
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=geist@300,350,400,450,500,580,600,650,700&f[]=geist-mono@400,500,600&display=swap">
+
+<style>
+/* ========================================================================================== */
+/*  ZERO-DEPENDENCY SINGLE-FILE PRESENTATION :: Stroke Prediction                               */
+/*  Style: Clinical Precision Light — clean medical theme, teal accents, Geist typography     */
+
+/* === CSS VARIABLES — Design System === */
+:root {
+  --bg-deep:    #e0e7ee;
+  --bg:         #eff4f7;
+  --bg-elevated:#ffffff;
+  --accent:     #00897b;
+  --accent2:    #006064;
+  --accent-dim: rgba(0,137,123,0.14);
+  --text:       #152028;
+  --text-dim:   #4a6470;
+  --text-muted: #8095a3;
+  --border:     rgba(0,137,123,0.10);
+  --bar-grad:   linear-gradient(180deg, var(--accent), var(--accent2));
+  --transition: 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* === RESET === */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background:var(--bg-deep);
+  font-family:'Geist', sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ========================================================================================== */
+/*  VIEWPORT WRAPPER — Fixed 16:9 Stage                                                        */
+/*  Scales uniformly. Always 1920×1080 internally, no reflow.                                  */
+/* ========================================================================================== */
+
+.viewport {
+  width:100vw; height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  background:var(--bg-deep);
+}
+
+.stage {
+  width:1920px; height:1080px;
+  position:relative; overflow:hidden;
+  background:var(--bg);
+  flex-shrink:0;
+}
+
+/*
+  Stage background layers (shared by all slides).
+*/
+.stage-bg {
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse at 12% 45%, rgba(0,137,123,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 22%, rgba(0,96,100,0.04) 0%, transparent 40%),
+    linear-gradient(165deg, #eaf0f4 0%, var(--bg) 40%, #e6ecf2 100%);
+}
+
+/* Grid pattern overlay */
+.stage-grid {
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,137,123,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,137,123,0.04) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+
+/* === RESET === */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background:var(--bg-deep);
+  font-family:'Geist', sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ========================================================================================== */
+/*  VIEWPORT WRAPPER — Fixed 16:9 Stage                                                        */
+/*  Scales uniformly. Always 1920×1080 internally, no reflow.                                  */
+/* ========================================================================================== */
+
+.viewport {
+  width:100vw; height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  background:var(--bg-deep);
+}
+
+.stage {
+  width:1920px; height:1080px;
+  position:relative; overflow:hidden;
+  background:var(--bg);
+  flex-shrink:0;
+}
+
+/* ========================================================================================== */
+/*  VERTICAL ACCENT BAR (left edge)                                                             */
+/* ========================================================================================== */
+
+.accent-bar {
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:6px;
+  background:var(--bar-grad);
+  border-radius:0 3px 3px 0;
+  z-index:10;
+  transition:opacity 0.3s ease;
+}
+
+/* ========================================================================================== */
+/*  SLIDES — visibility controlled by opacity + pointer-events, NOT display:none               */
+/* ========================================================================================== */
+
+.slide {
+  position:absolute; inset:0; z-index:2;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  display:flex; flex-direction:column;
+}
+.slide.active {
+  opacity:1; visibility:visible; pointer-events:auto;
+  z-index:5;
+}
+
+/* === Slide content wrapper === */
+.slide-content {
+  flex:1;
+  display:flex; flex-direction:column;
+  padding:100px 200px 80px 200px;
+  position:relative; z-index:3;
+}
+
+/* Left-panel (text) + Right-panel (image) layout */
+.slide-split {
+  display:flex; gap:60px;
+  flex:1; align-items:center;
+}
+.slide-split .panel-text  { flex:1; }
+.slide-split .panel-image { flex:0 0 auto; max-width:50%; }
+
+/* === Slide footer: page number + navigation hint === */
+.slide-footer {
+  position:absolute; bottom:40px; left:160px; right:80px;
+  display:flex; justify-content:space-between; align-items:center;
+  z-index:3; pointer-events:none;
+}
+.page-num {
+  font-family:'Geist Mono', monospace;
+  font-size:14px; color:var(--text-muted);
+  letter-spacing:0.16em;
+}
+
+/* ========================================================================================== */
+/*  TYPOGRAPHY                                                                                 */
+/* ========================================================================================== */
+
+.slide-label {
+  font-family:'Geist Mono', monospace;
+  font-size:15px; font-weight:500;
+  letter-spacing:0.32em;
+  color:var(--accent);
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+
+.slide-title {
+  font-family:'Geist', sans-serif;
+  font-size:64px; font-weight:680;
+  line-height:1.06;
+  color:var(--text);
+  letter-spacing:-0.025em;
+  margin-bottom:32px;
+  max-width:1300px;
+}
+.slide-title .hl {
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.slide-subtitle {
+  font-family:'Geist', sans-serif;
+  font-size:26px; font-weight:480;
+  color:var(--text-dim);
+  letter-spacing:0.02em;
+  margin-bottom:20px;
+}
+
+/* Bullet list */
+.bullet-list {
+  list-style:none;
+  max-width:1100px;
+}
+.bullet-list li {
+  font-family:'Geist', sans-serif;
+  font-size:24px; font-weight:480;
+  color:var(--text-dim);
+  line-height:1.55;
+  padding:10px 0;
+  padding-left:32px;
+  position:relative;
+}
+.bullet-list li::before {
+  content:'';
+  position:absolute; left:0; top:20px;
+  width:8px; height:8px;
+  border-radius:2px;
+  background:var(--accent);
+  opacity:0.55;
+}
+
+/* Stat highlight */
+.stat-large {
+  font-family:'Geist', sans-serif;
+  font-size:96px; font-weight:700;
+  color:var(--accent);
+  line-height:1;
+  letter-spacing:-0.03em;
+}
+.stat-caption {
+  font-family:'Geist Mono', monospace;
+  font-size:16px; font-weight:550;
+  color:var(--text-muted);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin-top:8px;
+}
+
+/* Comparison row */
+.compare-row {
+  display:flex; gap:80px; margin-top:40px;
+}
+.compare-card {
+  flex:1;
+  background:var(--bg-elevated);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:40px 44px;
+}
+
+/* Metric grid */
+.metric-grid {
+  display:grid;
+  grid-template-columns:repeat(5, 1fr);
+  gap:24px; margin-top:40px;
+  max-width:1480px;
+}
+.metric-card {
+  background:var(--bg-elevated);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:32px 28px;
+  text-align:center;
+}
+.metric-card .m-name {
+  font-family:'Geist Mono', monospace;
+  font-size:14px; font-weight:680;
+  color:var(--accent);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.metric-card .m-desc {
+  font-family:'Geist', sans-serif;
+  font-size:17px; font-weight:500;
+  color:var(--text-dim);
+  line-height:1.45;
+}
+
+/* Feature table */
+.data-table {
+  border-collapse:collapse;
+  width:100%; max-width:700px;
+  font-family:'Geist', sans-serif;
+  font-size:18px;
+}
+.data-table td {
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  color:var(--text-dim);
+  font-weight:480;
+}
+.data-table td:first-child {
+  font-family:'Geist Mono', monospace;
+  font-size:15px;
+  color:var(--accent);
+  font-weight:550;
+  letter-spacing:0.04em;
+}
+.data-table td:last-child {
+  color:var(--text-dim);
+  font-size:16px;
+}
+.data-table tr:first-child td { border-top:1px solid var(--border); }
+
+/* Image styling */
+img.slide-img {
+  max-width:100%;
+  max-height:700px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  display:block;
+}
+
+/* Title slide specific */
+.slide-title-main .team-row {
+  display:flex; gap:70px;
+}
+.slide-title-main .team-row span {
+  font-family:'Geist', sans-serif;
+  font-size:18px; font-weight:520;
+  color:var(--text-muted);
+  letter-spacing:0.06em;
+}
+.slide-title-main .pulse-ring {
+  position:absolute;
+  right:140px; top:140px;
+  width:300px; height:300px;
+  border-radius:50%;
+  border:1.5px solid rgba(0,137,123,0.10);
+  pointer-events:none; z-index:1;
+}
+.slide-title-main .pulse-ring::after {
+  content:''; position:absolute; inset:35px;
+  border-radius:50%;
+  border:1px solid rgba(0,96,100,0.08);
+}
+
+/* Section divider */
+.slide-divider {
+  align-items:center; justify-content:center;
+  text-align:center;
+}
+.slide-divider .divider-num {
+  font-family:'Geist Mono', monospace;
+  font-size:18px; color:var(--accent);
+  letter-spacing:0.4em;
+  margin-bottom:28px;
+}
+.slide-divider .divider-title {
+  font-size:72px;
+  font-weight:680;
+}
+
+/* Code block */
+.code-block {
+  font-family:'Geist Mono', monospace;
+  font-size:17px;
+  color:var(--accent);
+  background:rgba(0,137,123,0.05);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:24px 32px;
+  line-height:1.7;
+  white-space:pre;
+  letter-spacing:0.02em;
+}
+
+/* Quote / emphasis */
+.quote-box {
+  border-left:3px solid var(--accent);
+  padding:16px 32px;
+  margin-top:32px;
+}
+.quote-box p {
+  font-family:'Geist', sans-serif;
+  font-size:22px; font-weight:480;
+  color:var(--text-dim);
+  font-style:italic;
+  letter-spacing:0.01em;
+}
+
+/* ========================================================================================== */
+/*  ANIMATION SYSTEM                                                                           */
+/* ========================================================================================== */
+
+.reveal {
+  opacity:0;
+  transform:translateX(-24px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,0.61,0.36,1);
+}
+.slide.active .reveal {
+  opacity:1;
+  transform:translateX(0);
+}
+.reveal-d1 { transition-delay:0.10s; }
+.reveal-d2 { transition-delay:0.20s; }
+.reveal-d3 { transition-delay:0.30s; }
+.reveal-d4 { transition-delay:0.40s; }
+.reveal-d5 { transition-delay:0.50s; }
+.reveal-d6 { transition-delay:0.60s; }
+.reveal-d7 { transition-delay:0.70s; }
+.reveal-d8 { transition-delay:0.80s; }
+
+/* Fade-up variant */
+.reveal-up {
+  opacity:0;
+  transform:translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,0.61,0.36,1);
+}
+.slide.active .reveal-up {
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Accent bar grow on slide change */
+.accent-bar {
+  transform:scaleY(0);
+  transition:transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.stage.active-slide .accent-bar {
+  transform:scaleY(1);
+}
+
+/* ========================================================================================== */
+/*  INLINE EDIT MODE                                                                            */
+/* ========================================================================================== */
+
+.edit-toggle {
+  position:fixed; top:12px; left:12px; z-index:100;
+  background:var(--bg-elevated); border:1px solid var(--border);
+  color:var(--text-dim); font-family:'Geist Mono', monospace;
+  font-size:12px; padding:6px 14px; border-radius:6px;
+  cursor:pointer;
+  opacity:0; transition:opacity 0.3s ease;
+  letter-spacing:0.08em;
+}
+.viewport:hover .edit-toggle { opacity:0.6; }
+.edit-toggle:hover { opacity:1 !important; color:var(--accent); }
+body.editing .edit-toggle { opacity:1; color:var(--accent); border-color:var(--accent); }
+body.editing [data-editable] {
+  outline:1px dashed rgba(0,137,123,0.5);
+  outline-offset:4px;
+  cursor:text;
+}
+body.editing [data-editable]:focus {
+  outline:2px solid var(--accent);
+  outline-offset:4px;
+}
+
+/* ========================================================================================== */
+/*  PREFERS REDUCED MOTION                                                                      */
+/* ========================================================================================== */
+
+@media (prefers-reduced-motion:reduce) {
+  .reveal, .reveal-up { opacity:1; transform:none; transition:none; }
+  .accent-bar { transform:scaleY(1); transition:none; }
+  .slide { transition:none; }
+}
+
+/* ========================================================================================== */
+/*  NAVIGATION HINT (bottom center, fades)                                                      */
+/* ========================================================================================== */
+
+.nav-hint {
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  font-family:'Geist Mono', monospace; font-size:12px;
+  color:rgba(0,0,0,0.20); letter-spacing:0.1em;
+  pointer-events:none; z-index:99;
+  transition:opacity 0.6s ease;
+}
+</style>
+</head>
+<body>
+
+<!-- Edit mode toggle (hover top-left) -->
+<button class="edit-toggle" title="Toggle edit mode (E)" data-edit-btn>&#9998; Edit</button>
+
+<!-- Navigation hint -->
+<div class="nav-hint" data-nosnippet>← → or Space to navigate  ·  Press E to edit</div>
+
+<!-- ====================================================================================== -->
+<!--  VIEWPORT + STAGE                                                                       -->
+<!-- ====================================================================================== -->
+
+<div class="viewport">
+<div class="stage active-slide" id="stage">
+
+  <!-- Persistent background layers -->
+  <div class="stage-bg"></div>
+  <div class="stage-grid"></div>
+  <div class="accent-bar"></div>
+
+  <!-- ===== SLIDE 01 · TITLE ===== -->
+  <section class="slide slide-title-main active" data-slide="0">
+    <div class="pulse-ring"></div>
+    <div class="slide-content" style="justify-content:center; padding:140px 200px 120px; align-items:center; text-align:center;">
+      <div class="slide-label reveal reveal-d1" data-editable>Stroke Prediction</div>
+      <h1 class="slide-title reveal reveal-d2" style="font-size:100px; max-width:1250px;" data-editable>
+        Πρόβλεψη <span class="hl">Εγκεφαλικού</span> Επεισοδίου
+      </h1>
+      <p class="slide-subtitle reveal reveal-d3" data-editable>
+        Big Data &amp; Data Mining &middot; Εξαμηνιαία Εργασία
+      </p>
+      <div class="team-row reveal reveal-d4" style="margin-top:48px;" data-editable>
+        <span>Δημήτριος Παρασκευόπουλος · 21390314</span>
+        <span>Σωτήρης Μάκο · 20290136</span>
+        <span>Θωμάς Τραχίλης · 22390225</span>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">01</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 02 · TO ΠΡΟΒΛΗΜΑ ===== -->
+  <section class="slide" data-slide="1">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:80px 200px 50px;">
+      <div class="slide-label reveal reveal-d1">Το Πρόβλημα</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Το Εγκεφαλικό Επεισόδιο
+      </h2>
+      <!-- IMAGE BOX -->
+      <div class="compare-card reveal reveal-d3" style="padding:24px; max-width:500px; display:inline-block;">
+        <img src="diagrams/stroke.png" alt="Stroke illustration" style="max-width:280px; opacity:0.9; display:block; margin:0 auto;">
+      </div>
+      <!-- TEXT BOX -->
+      <div class="compare-card reveal reveal-d4" style="padding:28px 40px; max-width:1100px; margin-top:20px;">
+        <ul class="bullet-list" style="text-align:left;">
+          <li data-editable>1η αιτία αναπηρίας παγκοσμίως</li>
+          <li data-editable>2η αιτία θανάτου (ΠΟΥ)</li>
+          <li data-editable><strong style="color:var(--accent);">1 στα 4</strong> άτομα θα υποστεί εγκεφαλικό στη ζωή του</li>
+          <li data-editable>Η έγκαιρη πρόβλεψη μπορεί να σώσει ζωές</li>
+        </ul>
+        <div class="quote-box reveal reveal-d7" style="margin-top:12px;">
+          <p data-editable>Πρόκληση: Binary classification με σοβαρή ανισορροπία κλάσεων, μόλις 5% θετικά δείγματα.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">02</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 03 · ΤΟ DATASET ===== -->
+  <section class="slide" data-slide="2">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:80px 200px 60px;">
+      <div class="slide-label reveal reveal-d1">Δεδομένα</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        <span class="hl">5.110</span> Ιατρικές Εγγραφές
+      </h2>
+      <ul class="bullet-list reveal reveal-d3" style="max-width:1100px; text-align:center;">
+        <li data-editable>10 προγνωστικές μεταβλητές + 1 label (stroke) &middot; Πηγή: Kaggle, Stroke Prediction Dataset</li>
+      </ul>
+      <div style="display:flex; gap:60px; align-items:flex-start; justify-content:center; margin-top:12px;">
+        <ul class="bullet-list reveal reveal-d4" style="max-width:500px; text-align:left;">
+          <li data-editable>Κατηγορικές: gender, married, work, residence, smoking</li>
+          <li data-editable>Αριθμητικές: age, glucose, bmi</li>
+          <li data-editable>Δυαδικές: hypertension, heart_disease</li>
+        </ul>
+        <table class="data-table reveal reveal-d5">
+          <tr><td>gender</td><td>Κατηγορική</td></tr>
+          <tr><td>age</td><td>Αριθμητική</td></tr>
+          <tr><td>hypertension</td><td>Δυαδική (0/1)</td></tr>
+          <tr><td>heart_disease</td><td>Δυαδική (0/1)</td></tr>
+          <tr><td>ever_married</td><td>Κατηγορική</td></tr>
+          <tr><td>work_type</td><td>Κατηγορική (5)</td></tr>
+          <tr><td>Residence_type</td><td>Κατηγορική</td></tr>
+          <tr><td>avg_glucose_level</td><td>Αριθμητική</td></tr>
+          <tr><td>bmi</td><td>Αριθμητική (N/A)</td></tr>
+          <tr><td>smoking_status</td><td>Κατηγορική (4)</td></tr>
+          <tr><td>stroke</td><td>Label (5%)</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">03</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 04 · ΠΡΟΚΛΗΣΕΙΣ ===== -->
+  <section class="slide" data-slide="3">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:80px 200px 60px;">
+      <div class="slide-label reveal reveal-d1">Προκλήσεις</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Class Imbalance &amp; Ελλιπή Δεδομένα
+      </h2>
+      <div class="compare-row" style="max-width:1100px;">
+        <div class="compare-card reveal reveal-d3" style="text-align:center;">
+          <div class="stat-large">5%</div>
+          <div class="stat-caption">Θετικά δείγματα (stroke)</div>
+        </div>
+        <div class="compare-card reveal reveal-d4" style="text-align:center;">
+          <div class="stat-large">201</div>
+          <div class="stat-caption">BMI τιμές N/A (3.9%)</div>
+        </div>
+        <div class="compare-card reveal reveal-d5" style="text-align:center;">
+          <div class="stat-large">5/10</div>
+          <div class="stat-caption">Μεταβλητές κατηγορικές</div>
+        </div>
+      </div>
+      <ul class="bullet-list reveal reveal-d6" style="margin-top:28px; max-width:1100px; text-align:center;">
+        <li data-editable>To BMI περιέχει "N/A" strings, χρειάζεται ρητή μετατροπή σε null</li>
+        <li data-editable>Smoking_status έχει "Unknown" κατηγορία, χρειάζεται στρατηγική</li>
+        <li data-editable>Η ανισορροπία διορθώνεται με SMOTE στο train set μόνο</li>
+      </ul>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">04</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 05 · ΑΡΧΙΤΕΚΤΟΝΙΚΗ ===== -->
+  <section class="slide" data-slide="4">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:60px 200px 40px;">
+      <div class="slide-label reveal reveal-d1">Αρχιτεκτονική</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Bronze → Silver → <span class="hl">Gold</span>
+      </h2>
+      <!-- IMAGE BOX -->
+      <div class="compare-card reveal reveal-d3" style="padding:20px; max-width:900px; display:inline-block;">
+        <img src="diagrams/diagram_0.png" alt="Bronze→Silver→Gold architecture" style="max-width:840px; max-height:420px; display:block; margin:0 auto;">
+      </div>
+      <!-- TEXT BOX -->
+      <div class="compare-row reveal reveal-d5" style="max-width:1100px; margin-top:16px;">
+        <div class="compare-card" style="padding:16px 22px; text-align:center;">
+          <div class="stat-caption" style="margin-bottom:4px;">Bronze</div>
+          <div style="font-size:15px; color:var(--text-dim);">Καθαρισμός · Split 80/20 · 5.110 εγγραφές</div>
+        </div>
+        <div class="compare-card" style="padding:16px 22px; text-align:center;">
+          <div class="stat-caption" style="margin-bottom:4px;">Silver</div>
+          <div style="font-size:15px; color:var(--text-dim);">Imputation · StringIndexer · 4.123/987</div>
+        </div>
+        <div class="compare-card" style="padding:16px 22px; text-align:center;">
+          <div class="stat-caption" style="margin-bottom:4px;">Gold</div>
+          <div style="font-size:15px; color:var(--text-dim);">OneHot · Scaler · SMOTE · 21D SparseVector</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">05</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 06 · BRONZE ===== -->
+  <section class="slide" data-slide="5">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:90px 200px 60px;">
+      <div class="slide-label reveal reveal-d1">Bronze Layer</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Φόρτωση &amp; Καθαρισμός
+      </h2>
+      <ul class="bullet-list reveal reveal-d3" style="max-width:1100px; text-align:center; margin-top:8px;">
+        <li data-editable>Φόρτωση CSV με PySpark σε τοπική λειτουργία (local[*])</li>
+        <li class="reveal reveal-d4" data-editable>Αφαίρεση περιττής στήλης id</li>
+        <li class="reveal reveal-d5" data-editable>Μετατροπή "N/A" → null → Double για το BMI</li>
+        <li class="reveal reveal-d6" data-editable>Train/Test split 80/20 με seed=42</li>
+      </ul>
+      <div class="compare-row" style="margin-top:32px; max-width:600px;">
+        <div class="compare-card reveal reveal-d7" style="text-align:center;">
+          <div style="font-size:48px; font-weight:680; color:var(--accent);">4.123</div>
+          <div class="stat-caption">Train</div>
+        </div>
+        <div class="compare-card reveal reveal-d7" style="text-align:center;">
+          <div style="font-size:48px; font-weight:680; color:var(--text-dim);">987</div>
+          <div class="stat-caption">Test</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">06</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 07 · SILVER ===== -->
+  <section class="slide" data-slide="6">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:80px 200px 50px;">
+      <div class="slide-label reveal reveal-d1">Silver Layer</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Imputation &amp; Categorical Encoding
+      </h2>
+      <ul class="bullet-list reveal reveal-d3" style="max-width:1100px; text-align:center; margin-top:8px;">
+        <li data-editable>Median imputation BMI: 27.90 (υπολογισμός από train)</li>
+        <li class="reveal reveal-d4" data-editable>Ανθεκτική σε outliers. Αποφεύγεται ο μέσος όρος.</li>
+        <li class="reveal reveal-d5" data-editable>StringIndexer: 5 κατηγορικές → αριθμητικοί δείκτες</li>
+        <li class="reveal reveal-d6" data-editable>Το test set παραμένει ανέγγιχτο (fit μόνο στο train)</li>
+      </ul>
+      <table class="data-table reveal reveal-d5" style="margin-top:16px;">
+        <tr><td>gender</td><td>0-2</td></tr>
+        <tr><td>ever_married</td><td>0-1</td></tr>
+        <tr><td>work_type</td><td>0-4</td></tr>
+        <tr><td>Residence_type</td><td>0-1</td></tr>
+        <tr><td>smoking_status</td><td>0-3</td></tr>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">07</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 08 · GOLD + SMOTE ===== -->
+  <section class="slide" data-slide="7">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:60px 200px 35px;">
+      <div class="slide-label reveal reveal-d1">Gold Layer</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        SMOTE &amp; One-Hot Encoding
+      </h2>
+      <!-- IMAGE BOX -->
+      <div class="compare-card reveal reveal-d3" style="padding:16px; max-width:580px; display:inline-block;">
+        <img src="eda_plots/10_smote_comparison.png" alt="SMOTE before/after" style="max-width:540px; display:block; margin:0 auto;">
+      </div>
+      <!-- TEXT BOX -->
+      <div class="compare-card reveal reveal-d4" style="padding:24px 40px; max-width:1100px; margin-top:16px;">
+        <ul class="bullet-list" style="text-align:left;">
+          <li data-editable>SMOTE εφαρμόζεται <strong style="color:var(--accent);">μόνο στο train</strong></li>
+          <li data-editable>207 stroke → 3.916 (50-50 ισορροπία)</li>
+          <li data-editable>Rounding + clipping για integer categorical indices</li>
+          <li data-editable>OneHotEncoder: 16 δυαδικές στήλες → 21D SparseVector</li>
+          <li data-editable>StandardScaler με withMean=False (συντήρηση sparsity)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">08</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 09 · EDA: ΙΣΤΟΓΡΑΜΜΑΤΑ ===== -->
+  <section class="slide" data-slide="8">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:55px 200px 30px;">
+      <div class="slide-label reveal reveal-d1">Exploratory Data Analysis</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Κατανομές Αριθμητικών Μεταβλητών
+      </h2>
+      <!-- IMAGE BOX -->
+      <div class="compare-card reveal reveal-d3" style="padding:14px; max-width:1000px; display:inline-block;">
+        <img src="eda_plots/02_histograms.png" alt="Histograms: age, glucose, bmi" style="max-height:460px; display:block; margin:0 auto;">
+      </div>
+      <!-- TEXT BOX -->
+      <div class="compare-card reveal reveal-d5" style="padding:20px 40px; max-width:1000px; margin-top:14px;">
+        <ul class="bullet-list" style="text-align:left;">
+          <li data-editable>Ηλικία: μέσος 43 έτη, εύρος 0-82</li>
+          <li data-editable>Γλυκόζη: δεξιά ασυμμετρία, μέσος ~106 mg/dL</li>
+          <li data-editable>BMI: κατά προσέγγιση κανονική, διάμεσος 27.9</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">09</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 10 · EDA: BOX PLOTS ===== -->
+  <section class="slide" data-slide="9">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:55px 200px 30px;">
+      <div class="slide-label reveal reveal-d1">Exploratory Data Analysis</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Box Plots ανά Κατηγορία Stroke
+      </h2>
+      <!-- IMAGE BOX -->
+      <div class="compare-card reveal reveal-d3" style="padding:14px; max-width:1000px; display:inline-block;">
+        <img src="eda_plots/03_boxplots.png" alt="Box plots by stroke" style="max-height:460px; display:block; margin:0 auto;">
+      </div>
+      <!-- TEXT BOX -->
+      <div class="compare-card reveal reveal-d5" style="padding:20px 40px; max-width:1000px; margin-top:14px;">
+        <ul class="bullet-list" style="text-align:left;">
+          <li data-editable>Ηλικία: διάμεσος stroke <strong style="color:var(--accent);">68</strong> vs μη-stroke <strong>42</strong></li>
+          <li data-editable>Γλυκόζη: υψηλότερη στην ομάδα stroke</li>
+          <li data-editable>BMI: μικρή διαφορά μεταξύ των ομάδων</li>
+        </ul>
+        <div class="compare-card reveal reveal-d7" style="margin-top:10px; text-align:center; padding:14px; display:inline-block;">
+          <div style="font-size:36px; font-weight:680; color:var(--accent);">~25</div>
+          <div class="stat-caption">Έτη διαφορά διαμέσου ηλικίας</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">10</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 11 · EDA: ΣΥΣΧΕΤΙΣΕΙΣ ===== -->
+  <section class="slide" data-slide="10">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:55px 200px 30px;">
+      <div class="slide-label reveal reveal-d1">Exploratory Data Analysis</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Συσχετίσεις &amp; Παράγοντες Κινδύνου
+      </h2>
+      <!-- IMAGE BOX -->
+      <div class="compare-card reveal reveal-d3" style="padding:14px; max-width:700px; display:inline-block;">
+        <img src="eda_plots/07_correlation_heatmap.png" alt="Correlation heatmap" style="max-height:430px; display:block; margin:0 auto;">
+      </div>
+      <!-- TEXT BOX -->
+      <div class="compare-card reveal reveal-d5" style="padding:18px 40px; max-width:1000px; margin-top:14px;">
+        <div style="display:flex; gap:30px; flex-wrap:wrap; justify-content:center;">
+          <div style="text-align:center; padding:0 24px;">
+            <div style="font-size:42px; font-weight:680; color:var(--accent);">r=0.25</div>
+            <div class="stat-caption">Ηλικία → Stroke</div>
+            <div style="font-size:14px; color:var(--text-dim);">Ισχυρότερη συσχέτιση</div>
+          </div>
+          <div style="text-align:center; padding:0 24px;">
+            <div style="font-size:42px; font-weight:680; color:var(--text-dim);">r=0.13</div>
+            <div class="stat-caption">Υπέρταση → Stroke</div>
+          </div>
+          <div style="text-align:center; padding:0 24px;">
+            <div style="font-size:42px; font-weight:680; color:var(--text-muted);">r=0.06</div>
+            <div class="stat-caption">Γλυκόζη → Stroke</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">11</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 12 · ΜΟΝΤΕΛΑ ===== -->
+  <section class="slide" data-slide="11">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:80px 200px 50px;">
+      <div class="slide-label reveal reveal-d1">Classification</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Μοντέλα Μηχανικής Μάθησης
+      </h2>
+      <div class="compare-row" style="max-width:1300px;">
+        <div class="compare-card reveal reveal-d3">
+          <div style="font-size:26px; font-weight:680; color:var(--accent); margin-bottom:10px;">MLP</div>
+          <div style="font-size:17px; font-weight:500; color:var(--text-dim); line-height:1.5;">
+            Νευρωνικό δίκτυο με μη-γραμμικά όρια απόφασης, backpropagation, πολλαπλά hidden layers
+          </div>
+        </div>
+        <div class="compare-card reveal reveal-d4">
+          <div style="font-size:26px; font-weight:680; color:var(--accent); margin-bottom:10px;">SVM</div>
+          <div style="font-size:17px; font-weight:500; color:var(--text-dim); line-height:1.5;">
+            Linear SVC: αποδοτικό σε sparse δεδομένα, class weights για imbalance
+          </div>
+        </div>
+        <div class="compare-card reveal reveal-d5">
+          <div style="font-size:26px; font-weight:680; color:var(--accent); margin-bottom:10px;">Random Forest</div>
+          <div style="font-size:17px; font-weight:500; color:var(--text-dim); line-height:1.5;">
+            Ensemble δέντρων με feature importance, robust σε υπερπροσαρμογή
+          </div>
+        </div>
+        <div class="compare-card reveal reveal-d6">
+          <div style="font-size:26px; font-weight:680; color:var(--text-dim); margin-bottom:10px;">Logistic Reg.</div>
+          <div style="font-size:17px; font-weight:500; color:var(--text-dim); line-height:1.5;">
+            Baseline μοντέλο, γρήγορο, ερμηνεύσιμο, class_weight=balanced
+          </div>
+        </div>
+      </div>
+      <div class="quote-box reveal reveal-d7" style="margin-top:16px; max-width:1100px;">
+        <p data-editable>Διαδικασία: 5-fold cross-validation + grid search υπέρ-παραμέτρων. Αξιολόγηση μόνο στο test set.</p>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">12</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 13 · SPARK PIPELINE ===== -->
+  <section class="slide" data-slide="12">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:55px 200px 30px;">
+      <div class="slide-label reveal reveal-d1">Big Data Approach</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Spark ML Pipeline
+      </h2>
+      <!-- IMAGE BOX -->
+      <div class="compare-card reveal reveal-d3" style="padding:14px; max-width:580px; display:inline-block;">
+        <img src="diagrams/diagram_1.png" alt="Pipeline diagram" style="max-height:420px; display:block; margin:0 auto;">
+      </div>
+      <!-- TEXT BOX -->
+      <div class="compare-card reveal reveal-d4" style="padding:20px 40px; max-width:1000px; margin-top:14px;">
+        <div class="code-block" style="text-align:left; margin-bottom:10px;">
+          Imputer → StringIndexer → OneHotEncoder
+              → VectorAssembler → StandardScaler
+              → Classifier</div>
+        <div class="compare-row" style="margin-top:10px;">
+          <div class="compare-card reveal reveal-d5" style="text-align:center; padding:12px 18px;">
+            <div style="font-family:'Geist Mono',monospace; font-size:15px; color:var(--accent);">
+              RandomForestClassifier
+            </div>
+          </div>
+          <div class="compare-card reveal reveal-d6" style="text-align:center; padding:12px 18px;">
+            <div style="font-family:'Geist Mono',monospace; font-size:15px; color:var(--text-dim);">
+              LogisticRegression
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">+ weightCol</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">13</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 14 · ΑΞΙΟΛΟΓΗΣΗ ===== -->
+  <section class="slide" data-slide="13">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:80px 200px 50px;">
+      <div class="slide-label reveal reveal-d1">Αξιολόγηση</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        5 Μετρικές για Imbalanced Classification
+      </h2>
+      <div class="metric-grid" style="max-width:1400px;">
+        <div class="metric-card reveal reveal-d3">
+          <div class="m-name">Accuracy</div>
+          <div class="m-desc" data-editable>% σωστών προβλέψεων. Παραπλανητική: 95% dummy</div>
+        </div>
+        <div class="metric-card reveal reveal-d4">
+          <div class="m-name">Precision</div>
+          <div class="m-desc" data-editable>Πόσα predicted είναι όντως stroke. False alarms</div>
+        </div>
+        <div class="metric-card reveal reveal-d5">
+          <div class="m-name">Recall</div>
+          <div class="m-desc" data-editable>Πόσα πραγματικά stroke βρήκαμε. <strong style="color:var(--accent);">Κλινικά κρίσιμο</strong></div>
+        </div>
+        <div class="metric-card reveal reveal-d6">
+          <div class="m-name">F1-Score</div>
+          <div class="m-desc" data-editable>Αρμονικός μέσος P &amp; R. Ισορροπία</div>
+        </div>
+        <div class="metric-card reveal reveal-d7">
+          <div class="m-name">ROC-AUC</div>
+          <div class="m-desc" data-editable>Διαχωριστική ικανότητα. Ανεξάρτητο από threshold</div>
+        </div>
+      </div>
+      <div class="quote-box reveal reveal-d8" style="margin-top:20px; max-width:1100px; border-color:var(--accent);">
+        <p data-editable style="font-weight:580;">⚠ Αξιολόγηση αποκλειστικά στο <span style="color:var(--accent);">test set</span> (987, φυσικό imbalance 4.3%). Το test δεν συμμετέχει πουθενά στην εκπαίδευση.</p>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">14</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 15 · ΣΥΜΠΕΡΑΣΜΑΤΑ ===== -->
+  <section class="slide" data-slide="14">
+    <div class="slide-content" style="align-items:center; text-align:center; padding:75px 200px 45px;">
+      <div class="slide-label reveal reveal-d1">Συμπεράσματα</div>
+      <h2 class="slide-title reveal reveal-d2" data-editable style="max-width:1400px;">
+        Τεχνικές Αποφάσεις &amp; <span class="hl">Insights</span>
+      </h2>
+      <ul class="bullet-list reveal reveal-d3" style="max-width:1200px; text-align:center;">
+        <li data-editable><strong style="color:var(--accent);">Η ηλικία κυριαρχεί</strong>, ~25 έτη διαφορά, r=0.25</li>
+        <li class="reveal reveal-d4" data-editable><strong style="color:var(--accent);">Class imbalance</strong>. To SMOTE διορθώνει, το test μένει ανέγγιχτο.</li>
+        <li class="reveal reveal-d5" data-editable><strong style="color:var(--accent);">Μη-γραμμικές σχέσεις</strong> μεταξύ καπνίσματος, γλυκόζης, ηλικίας και υπέρτασης</li>
+        <li class="reveal reveal-d6" data-editable><strong style="color:var(--accent);">Bronze → Silver → Gold</strong>: αναπαραγωγιμότητα, zero leakage</li>
+        <li class="reveal reveal-d7" data-editable><strong style="color:var(--accent);">Test set ανέγγιχτο</strong>, 987 δείγματα χωρίς καμία επαφή με την εκπαίδευση</li>
+      </ul>
+      <table class="data-table reveal reveal-d6" style="margin-top:16px;">
+        <tr><td>Median imputation</td><td>Ανθεκτική σε outliers</td></tr>
+        <tr><td>SMOTE</td><td>Διατηρεί όλα τα δεδομένα</td></tr>
+        <tr><td>OneHotEncoder</td><td>Αποφυγή ordinal bias</td></tr>
+        <tr><td>withMean=False</td><td>Διατήρηση sparsity</td></tr>
+        <tr><td>Parquet</td><td>Συμπίεση, schema</td></tr>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span class="page-num">15</span>
+    </div>
+  </section>
+
+</div><!-- /stage -->
+</div><!-- /viewport -->
+
+<!-- ========================================================================================== -->
+<!--  JAVASCRIPT: Navigation + Edit Mode + Swipe                                                  -->
+<!-- ========================================================================================== -->
+
+<script>
+(function(){
+  'use strict';
+
+  /* === STAGE SCALING (fixed 16:9) === */
+  const stage = document.getElementById('stage');
+  const viewport = document.querySelector('.viewport');
+
+  function scaleStage() {
+    const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+
+  scaleStage();
+  window.addEventListener('resize', scaleStage);
+
+  /* === SLIDE NAVIGATION === */
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let currentSlide = 0;
+
+  function showSlide(index) {
+    if (index < 0 || index >= slides.length) return;
+    slides[currentSlide].classList.remove('active');
+    slides[index].classList.add('active');
+    currentSlide = index;
+
+    /* Update accent bar animation on stage */
+    stage.classList.remove('active-slide');
+    void stage.offsetWidth; /* force reflow */
+    stage.classList.add('active-slide');
+
+    /* Hide nav hint after a few slides */
+    const hint = document.querySelector('.nav-hint');
+    if (hint && index > 1) {
+      hint.style.opacity = '0';
+    }
+  }
+
+  function nextSlide() { showSlide(currentSlide + 1); }
+  function prevSlide() { showSlide(currentSlide - 1); }
+
+  /* Keyboard */
+  document.addEventListener('keydown', function(e) {
+    if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    switch(e.key) {
+      case 'ArrowRight': case 'ArrowDown': case ' ': e.preventDefault(); nextSlide(); break;
+      case 'ArrowLeft': case 'ArrowUp': e.preventDefault(); prevSlide(); break;
+    }
+  });
+
+  /* Click navigation (left/right thirds of screen) */
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('[data-edit-btn]') || e.target.isContentEditable) return;
+    const x = e.clientX;
+    const w = window.innerWidth;
+    if (x > w * 0.65) nextSlide();
+    else if (x < w * 0.35) prevSlide();
+  });
+
+  /* Touch swipe */
+  let touchStartX = 0, touchStartY = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function(e) {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+      if (dx < -40) nextSlide();
+      else if (dx > 40) prevSlide();
+    }
+  });
+
+  /* === INLINE EDIT MODE === */
+  const editBtn = document.querySelector('[data-edit-btn]');
+  let editing = false;
+
+  function toggleEdit() {
+    editing = !editing;
+    document.body.classList.toggle('editing', editing);
+    editBtn.textContent = editing ? '✕ Done' : '✎ Edit';
+  }
+
+  editBtn.addEventListener('click', toggleEdit);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'e' && !editing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      /* Only if not typing in any input */
+      if (document.activeElement === document.body) {
+        toggleEdit();
+      }
+    }
+    if (e.key === 'Escape' && editing) {
+      toggleEdit();
+    }
+  });
+
+  /* Ctrl+S to save content */
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      if (editing) {
+        /* Persist edits back to DOM (already there via contentEditable) */
+        toggleEdit();
+        alert('Οι αλλαγές αποθηκεύτηκαν στο DOM. Για μόνιμη αποθήκευση, αποθηκεύστε το HTML αρχείο (Ctrl+S στον browser).');
+      }
+    }
+  });
+
+  /* === INITIAL STATE === */
+  showSlide(0);
+
+})();
+</script>
+</body>
+</html>
