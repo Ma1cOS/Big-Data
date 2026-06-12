@@ -11,3 +11,4 @@ imbalanced-learn==0.14.1
 mlxtend==0.24.0
 pyspark==4.1.2
 jupyter==1.1.1
+plotly==6.8.0
