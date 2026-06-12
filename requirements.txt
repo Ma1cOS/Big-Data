@@ -1,9 +1,14 @@
-pandas
-numpy
-matplotlib
-seaborn
-scikit-learn
-imbalanced-learn
-mlxtend
-pyspark
-jupyter
+# Baseline Safe Versions for Python 3.12
+# Pinning versions to mitigate supply chain risk. 
+# Note: For maximum security, use 'pip compile --generate-hashes' to generate cryptographic hashes.
+
+pandas==3.0.3
+numpy==2.4.6
+matplotlib==3.10.9
+seaborn==0.13.2
+scikit-learn==1.8.0
+imbalanced-learn==0.14.1
+mlxtend==0.24.0
+pyspark==4.1.2
+jupyter==1.1.1
+plotly==6.8.0

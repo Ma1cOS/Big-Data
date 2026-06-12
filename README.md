@@ -7,9 +7,9 @@
 ```bash
 git clone https://github.com/Ma1cOS/Big-Data.git
 cd Big-Data
-python -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate
-pip install pyspark pandas numpy matplotlib seaborn imbalanced-learn scikit-learn jupyter
+pip install -r requirements.txt
 ```
 
 ## Εκτέλεση
