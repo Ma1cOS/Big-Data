@@ -46,9 +46,3 @@ jupyter notebook
 | `test_gold.parquet` | Test set μετά one-hot + scaling |
 
 Τα αρχεία γράφονται με `mode("overwrite")` σε κάθε εκτέλεση.
-
-## Τεκμηρίωση
-
-Αναλυτική τεχνική τεκμηρίωση: [`Doc/Τεκμηρίωση.md`](Doc/Τεκμηρίωση.md)
-
-Οδηγίες για agents & contributors: [`AGENTS.md`](AGENTS.md)
