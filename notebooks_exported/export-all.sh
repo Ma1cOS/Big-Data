@@ -7,8 +7,8 @@ mkdir -p exported
 # Format: ["path/to/dir"]="prefix_"
 declare -A TARGET_DIRS
 TARGET_DIRS=(
-    ["../"]=""                          # No prefix for the main folder
-    ["../3b_classification_models/"]="3b_" # Adds "3b_" to these PDFs
+    ["../notebooks/"]=""                          # No prefix for the main folder
+    ["../notebooks/3b_classification_models/"]="3b_" # Adds "3b_" to these PDFs
 )
 
 export EXPORT_DIR="exported"
