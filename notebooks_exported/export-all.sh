@@ -8,7 +8,7 @@ mkdir -p exported
 declare -A TARGET_DIRS
 TARGET_DIRS=(
     ["../notebooks/"]=""                          # No prefix for the main folder
-    ["../notebooks/3b_classification_models/"]="3b_" # Adds "3b_" to these PDFs
+    ["../notebooks/3b_classification_models/"]="" # No prefix for the other folder
 )
 
 export EXPORT_DIR="exported"
